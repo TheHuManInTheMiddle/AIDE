@@ -1,0 +1,7 @@
+# AIDE:s körtidslogik (core/, exporters/) använder endast Pythons
+# standardbibliotek. Gränssnittet är byggt med CustomTkinter för att
+# visuellt matcha syskonverktyget G.A.M.E. B.R.I.D.G.E.
+customtkinter>=5.2.0
+
+# Nedanstående behövs endast för att köra testsviten under utveckling.
+pytest>=8.0.0
