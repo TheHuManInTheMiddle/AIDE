@@ -16,9 +16,15 @@ from ui import theme
 
 
 class PreviewWindow(ctk.CTkToplevel):
-    def __init__(self, parent, all_files, source_roots):
+    def __init__(self, parent, all_files, source_roots, localizer=None):
         super().__init__(parent)
-        self.title("Förhandsgranskning — A.I.D.E.")
+
+        self.localizer = localizer or getattr(parent, "localizer", None)
+        if self.localizer is None:
+            from core.localization_core import LocalizationCore
+            self.localizer = LocalizationCore()
+
+        self.title(self.localizer.get_text("preview_window_title"))
         self.geometry("760x600")
         self.configure(fg_color=theme.COLOR_BG_MAIN)
         self.transient(parent)
@@ -36,7 +42,8 @@ class PreviewWindow(ctk.CTkToplevel):
         header.pack(fill="x", padx=12, pady=(12, 6))
 
         ctk.CTkLabel(
-            header, text="SAMMANFATTNING", font=theme.FONT_SECTION, text_color=theme.COLOR_TEXT_MUTED,
+            header, text=self.localizer.get_text("preview_summary"), font=theme.FONT_SECTION,
+            text_color=theme.COLOR_TEXT_MUTED,
         ).pack(anchor="w", padx=14, pady=(12, 4))
 
         def row(text, color=None):
@@ -45,17 +52,19 @@ class PreviewWindow(ctk.CTkToplevel):
                 text_color=color or theme.COLOR_TEXT_PRIMARY, anchor="w",
             ).pack(anchor="w", padx=14, pady=1)
 
-        row(f"Källor: {', '.join(str(s) for s in source_roots)}")
-        row(f"Inkluderade filer: {len(included)}")
-        row(f"Exkluderade filer: {len(excluded)}")
-        row(f"Total storlek (inkluderat): {_human_size(total_size)}")
+        row(self.localizer.get_text(
+            "preview_sources", sources=", ".join(str(s) for s in source_roots)
+        ))
+        row(self.localizer.get_text("preview_included", n=len(included)))
+        row(self.localizer.get_text("preview_excluded", n=len(excluded)))
+        row(self.localizer.get_text("preview_total_size", size=_human_size(total_size)))
 
         cat_text = ", ".join(f"{cat}: {count}" for cat, count in sorted(by_category.items()))
-        row(f"Kategorifördelning: {cat_text or '–'}")
+        row(self.localizer.get_text("preview_category_breakdown", breakdown=cat_text or "–"))
 
         if sensitive_included:
             row(
-                f"⚠ Varning: {len(sensitive_included)} känslig(a) fil(er) är markerade för export!",
+                self.localizer.get_text("preview_sensitive_warning", n=len(sensitive_included)),
                 color=theme.COLOR_RED,
             )
 
@@ -85,10 +94,10 @@ class PreviewWindow(ctk.CTkToplevel):
 
         columns = ("status", "category", "size")
         tree = ttk.Treeview(list_frame, columns=columns, show="tree headings", style="Preview.Treeview")
-        tree.heading("#0", text="Fil")
-        tree.heading("status", text="Status")
-        tree.heading("category", text="Kategori")
-        tree.heading("size", text="Storlek")
+        tree.heading("#0", text=self.localizer.get_text("preview_col_file"))
+        tree.heading("status", text=self.localizer.get_text("preview_col_status"))
+        tree.heading("category", text=self.localizer.get_text("preview_col_category"))
+        tree.heading("size", text=self.localizer.get_text("preview_col_size"))
         tree.column("#0", width=380)
         tree.column("status", width=110)
         tree.column("category", width=140)
@@ -97,13 +106,17 @@ class PreviewWindow(ctk.CTkToplevel):
         tree.pack(side="left", fill="both", expand=True, padx=8, pady=8)
 
         for f in sorted(all_files, key=lambda x: x.relative_path.lower()):
-            status = "Inkluderas" if f.included else "Exkluderas"
+            status = (
+                self.localizer.get_text("preview_status_included")
+                if f.included
+                else self.localizer.get_text("preview_status_excluded")
+            )
             if f.is_sensitive:
                 status += " ⚠"
             tree.insert("", "end", text=f.relative_path, values=(status, f.category, f.size_human))
 
         ctk.CTkButton(
-            self, text="Stäng", command=self.destroy, width=120,
+            self, text=self.localizer.get_text("preview_close"), command=self.destroy, width=120,
             fg_color=theme.COLOR_GRAY_DARK, hover_color=theme.COLOR_GRAY,
         ).pack(pady=(0, 12))
 

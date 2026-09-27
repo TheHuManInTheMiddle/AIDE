@@ -22,8 +22,9 @@ def build_manifest(
     project_name: str,
     source_roots: list[str],
     included_files: list[ScannedFile],
+    include_absolute_paths: bool = False,
 ) -> dict:
-    return {
+    manifest = {
         "project": project_name,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "files": len(included_files),
@@ -44,3 +45,15 @@ def build_manifest(
             for f in included_files
         ],
     }
+
+    if include_absolute_paths:
+        # ENDAST för AIDE Box/scan/ — internt maskin-till-maskin-kontrakt
+        # mellan AIDE och GameBridge på samma dator. Får ALDRIG sättas till
+        # True för paket som kan lämna datorn (md/text/tree, eller json
+        # explicit delat externt). Standardvärdet False håller den
+        # befintliga säkerhetsgarantin oförändrad för alla andra anrop.
+        manifest["source_folders_absolute"] = [
+            os.path.abspath(str(s)) for s in source_roots
+        ]
+
+    return manifest

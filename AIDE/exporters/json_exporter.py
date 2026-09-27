@@ -23,6 +23,7 @@ def export_json_manifest(
     filename: str = "project_manifest.json",
     conflict_strategy: ConflictStrategy = ConflictStrategy.NEW_VERSION,
     log_callback=None,
+    include_absolute_paths: bool = False,
 ) -> str | None:
     os.makedirs(export_dir, exist_ok=True)
     target = ensure_within_export_dir(export_dir, filename)
@@ -32,7 +33,10 @@ def export_json_manifest(
             log_callback(f"Hoppade över befintlig fil: {target}")
         return None
 
-    manifest = build_manifest(project_name, source_roots, included_files)
+    manifest = build_manifest(
+        project_name, source_roots, included_files,
+        include_absolute_paths=include_absolute_paths,
+    )
     with open(resolved, "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, ensure_ascii=False, indent=2)
 

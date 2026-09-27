@@ -18,6 +18,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+from core.easter_eggs import maybe_log_daddle
 from core.scanner import ScannedFile
 from core.tree_renderer import build_ascii_tree
 
@@ -53,6 +54,8 @@ def build_package_text(
     respektive mappnamn (basename) skrivs ut — aldrig den fullständiga
     lokala sökvägen. Se säkerhetsprincipen i modulens docstring.
     """
+    maybe_log_daddle(log_callback)
+
     lines: list[str] = []
     lines.append("AIDE PROJECT PACKAGE")
     lines.append("=" * 20)

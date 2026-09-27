@@ -50,9 +50,15 @@ class _DirNode:
 
 
 class FileTreeView(ttk.Frame):
-    def __init__(self, parent, on_selection_changed=None):
+    def __init__(self, parent, on_selection_changed=None, localizer=None):
         super().__init__(parent)
         self.on_selection_changed = on_selection_changed
+
+        self.localizer = localizer or getattr(parent, "localizer", None)
+        if self.localizer is None:
+            from core.localization_core import LocalizationCore
+            self.localizer = LocalizationCore()
+
         self._scanned_files = []  # list[ScannedFile]
         self._file_items = {}     # iid -> ScannedFile
         self._dir_nodes = {}      # iid -> _DirNode
@@ -61,10 +67,10 @@ class FileTreeView(ttk.Frame):
 
         columns = ("size", "category", "status")
         self.tree = ttk.Treeview(self, columns=columns, show="tree headings", selectmode="extended")
-        self.tree.heading("#0", text="Fil / Mapp")
-        self.tree.heading("size", text="Storlek")
-        self.tree.heading("category", text="Kategori")
-        self.tree.heading("status", text="Status")
+        self.tree.heading("#0", text=self.localizer.get_text("tree_col_name"))
+        self.tree.heading("size", text=self.localizer.get_text("tree_col_size"))
+        self.tree.heading("category", text=self.localizer.get_text("tree_col_category"))
+        self.tree.heading("status", text=self.localizer.get_text("tree_col_status"))
         self.tree.column("#0", width=420, stretch=True)
         self.tree.column("size", width=90, anchor="e")
         self.tree.column("category", width=140)
@@ -113,9 +119,14 @@ class FileTreeView(ttk.Frame):
                 parent_iid = self._ensure_dir_node(parent_iid, part)
 
             warn = f" {SENSITIVE_MARK}" if f.is_sensitive else ""
-            status = "Känslig" if f.is_sensitive else ("Binär" if f.is_binary else "")
+            if f.is_sensitive:
+                status = self.localizer.get_text("tree_status_sensitive")
+            elif f.is_binary:
+                status = self.localizer.get_text("tree_status_binary")
+            else:
+                status = ""
             if f.error:
-                status = "Fel"
+                status = self.localizer.get_text("tree_status_error")
             item_iid = self.tree.insert(
                 parent_iid, "end", text=f"{UNCHECKED} {filename}{warn}",
                 values=(f.size_human, f.category, status), tags=("file",),
@@ -239,7 +250,11 @@ class FileTreeView(ttk.Frame):
             self.tree.item(
                 iid,
                 text=f"{mark} {node.name}/",
-                values=(_human_size(total_size), "", f"{total_count} filer"),
+                values=(
+                    _human_size(total_size),
+                    "",
+                    self.localizer.get_text("tree_dir_file_count", n=total_count),
+                ),
             )
             return included_count, total_count, total_size
 

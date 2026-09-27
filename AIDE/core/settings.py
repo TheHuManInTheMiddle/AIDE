@@ -27,6 +27,15 @@ def _default_config_dir() -> str:
 CONFIG_DIR = _default_config_dir()
 CONFIG_FILE = os.path.join(CONFIG_DIR, "settings.json")
 
+# Standardgenvägar för AIDE:s GUI-kommandon (core/hotkey_utils.py).
+# Formatet matchar hotkey_utils.format_shortcut_for_tk/_for_display:
+# {"modifiers": ["ctrl", ...], "key": "s"}.
+DEFAULT_HOTKEYS: dict = {
+    "scan": {"modifiers": ["ctrl"], "key": "s"},
+    "build_package": {"modifiers": ["ctrl"], "key": "b"},
+    "preview": {"modifiers": ["ctrl"], "key": "p"},
+}
+
 
 @dataclass
 class Settings:
@@ -39,6 +48,16 @@ class Settings:
     show_hidden_files: bool = False
     default_checkbox_state: bool = True  # True = markera icke-känsliga filer som standard
 
+    # Tom sträng = autodetektera systemspråk (se core/localization_core.py).
+    # Annars en språkkod som finns i locales/locales.json, t.ex. "sv" eller "en".
+    language: str = ""
+
+    # Ombindningsbara genvägar för AIDE:s GUI-kommandon. Nyckeln är
+    # kommandots interna namn (matchar DEFAULT_HOTKEYS ovan), värdet
+    # är {"modifiers": [...], "key": "..."} — samma format som
+    # core.hotkey_utils.HotkeyCapture producerar vid ombindning.
+    hotkeys: dict = field(default_factory=lambda: {k: dict(v) for k, v in DEFAULT_HOTKEYS.items()})
+
     def to_dict(self) -> dict:
         return asdict(self)
 
@@ -47,6 +66,19 @@ class Settings:
         defaults = Settings()
         merged = defaults.to_dict()
         merged.update({k: v for k, v in data.items() if k in merged})
+
+        # Djupmerge hotkeys specifikt: en sparad settings.json från en
+        # äldre AIDE-version känner bara till de genvägar som fanns då.
+        # Om en ny standardgenväg läggs till i en senare version ska
+        # den ändå dyka upp för befintliga användare, inte tystas ner
+        # bara för att den saknas i deras gamla sparade fil. Alla
+        # övriga fält (inklusive resten av hotkeys-posterna) förblir
+        # oförändrade — bara nya nycklar fylls i från defaults.
+        if "hotkeys" in data and isinstance(data["hotkeys"], dict):
+            merged_hotkeys = {k: dict(v) for k, v in defaults.hotkeys.items()}
+            merged_hotkeys.update(data["hotkeys"])
+            merged["hotkeys"] = merged_hotkeys
+
         return Settings(**merged)
 
 
