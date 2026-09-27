@@ -1,128 +1,130 @@
-# AIDE – AI Development Export tool
+# AIDE – AI Development Export Tool
 
-AIDE är ett fristående lokalt desktopverktyg för att samla, granska,
-sortera och paketera filer från ett eller flera projekt inför arbete
-med externa AI-verktyg (t.ex. att klistra in kod i en chatt) eller för
-allmän dokumentation av ett projekts innehåll.
+AIDE is a standalone local desktop tool for collecting, reviewing,
+sorting, and packaging files from one or more projects for use with
+external AI tools (for example, pasting code into a chat) or for
+general project documentation.
 
-AIDE kräver **ingen internetanslutning** och **ingen extern AI-tjänst**.
-Allt sker lokalt på din dator.
+AIDE requires **no internet connection** and **no external AI service**.
+Everything happens locally on your computer.
 
 ---
 
-## 1. Vad AIDE är
+## 1. What AIDE Is
 
 AIDE:
 
-1. Låter dig välja en eller flera källmappar.
-2. Skannar rekursivt hela katalogträdet (alla undermappar, inte bara
-   toppnivån).
-3. Klassificerar varje fil (kod, text, konfiguration, webb, dokument,
-   bild, binär/okänd).
-4. Flaggar potentiellt känsliga filer (t.ex. `.env`, `*.pem`, `*.key`,
-   filer med "secret"/"password" i namnet) och avmarkerar dem som
-   standard.
-5. Låter dig markera/avmarkera enskilda filer eller hela kategorier
-   via checkboxar.
-6. Låter dig förhandsgranska exakt vad som kommer inkluderas innan
-   något skrivs till disk.
-7. Bygger ett textbaserat, lättläst paket (Markdown, ren text och/eller
-   ett JSON-manifest) som du kan mata in i valfritt AI-verktyg eller
-   spara som dokumentation.
+1. Lets you select one or more source folders.
+2. Recursively scans the entire directory tree (all subdirectories,
+   not just the top level).
+3. Classifies every file (code, text, configuration, web, document,
+   image, binary/unknown).
+4. Flags potentially sensitive files (such as `.env`, `*.pem`, `*.key`,
+   and files containing "secret" or "password" in their name) and
+   leaves them unchecked by default.
+5. Lets you select or deselect individual files or entire categories
+   using checkboxes.
+6. Lets you preview exactly what will be included before anything is
+   written to disk.
+7. Builds a text-based, human-readable package (Markdown, plain text
+   and/or a JSON manifest) that can be supplied to any AI tool or saved
+   as project documentation.
 
-AIDE **raderar eller skriver aldrig över dina originalfiler**. All
-export sker till en separat mapp du själv väljer.
+AIDE **never deletes or overwrites your original files**. All exports
+are written to a separate folder that you choose.
 
 ---
 
 ## 2. Installation
 
-Krav: Python 3.10 eller senare, med `tkinter` installerat.
+Requirements: Python 3.10 or later, with `tkinter` installed.
 
-- **Windows / macOS**: `tkinter` följer normalt med standardinstallationen
-  av Python från python.org.
-- **Linux (Debian/Ubuntu)**: installera vid behov med
-  `sudo apt-get install python3-tk`.
+* **Windows / macOS**: `tkinter` is normally included with the standard
+  Python installation from python.org.
+* **Linux (Debian/Ubuntu)**: install it if needed with:
 
-Installera projektets beroenden:
+```bash
+sudo apt-get install python3-tk
+```
+
+Install the project's dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-> AIDE:s kärnlogik (`core/`, `exporters/`) använder enbart Pythons
-> standardbibliotek. Gränssnittet bygger på **CustomTkinter** för att
-> visuellt höra ihop med syskonverktyget i samma verktygsfamilj — det
-> är fortfarande ett fristående lokalt program utan krav på internet
-> vid körning.
+> AIDE's core logic (`core/`, `exporters/`) uses only Python's standard
+> library. The interface is built with **CustomTkinter** to visually
+> match the sibling tools in the same tool family — it remains a
+> standalone local application with no internet requirement at runtime.
 
 ---
 
-## 3. Start
+## 3. Starting AIDE
 
-Kör från projektets rotmapp:
+Run from the project's root folder:
 
 ```bash
 python main.py
 ```
 
-Detta öppnar AIDE:s huvudfönster.
+This opens AIDE's main window.
 
 ---
 
-## 4. Grundläggande användning
+## 4. Basic Usage
 
-1. Klicka på **"Välj källmapp"** och peka ut den mapp du vill samla
-   filer från. Du kan lägga till flera källmappar.
-2. Klicka på **"Skanna"**. AIDE går igenom hela katalogträdet och
-   visar resultatet som en riktig mappstruktur — precis som i en
-   vanlig filhanterare, inte grupperat per filtyp.
-3. Varje fil OCH varje mapp har en checkbox. Klicka på en enskild fil
-   för att växla dess status, eller klicka direkt på en **mapp** för
-   att markera/avmarkera *hela dess delträd* i ett klick — perfekt för
-   att snabbt exkludera en hel undermapp du inte vill ha med, utan att
-   klicka fil för fil. En mapp visar tre lägen: `☑` (allt markerat),
-   `☐` (inget markerat), `◪` (blandat innehåll). Du kan även använda
-   **"Markera alla"**, **"Avmarkera alla"**, **"Markera kategori"**
-   eller **"Avmarkera kategori"**.
-4. Använd filterfältet för att snabbt hitta filer via filnamn, sökväg
-   eller kategori.
-5. Klicka på **"Välj exportmapp"** och peka ut var paketet ska sparas.
-6. Klicka på **"Förhandsgranska"** för att se en sammanställning innan
-   du exporterar.
-7. Klicka på **"Bygg paket"**. Paketet får automatiskt samma namn som
-   din källmapp (t.ex. `mittprojekt.md`) istället för ett generiskt
-   filnamn. Vid namnkonflikt med befintliga filer får du välja: skriv
-   över, skapa ny version, eller hoppa över.
-8. Loggen till höger visar vad som händer, steg för steg.
-
----
-
-## 5. Filformat
-
-AIDE klassificerar filer i följande kategorier:
-
-| Kategori              | Exempel på filändelser                                   |
-|------------------------|-----------------------------------------------------------|
-| Kod                    | `.py .js .ts .java .cs .cpp .c .h .hpp .rs .go .php .rb .ps1 .bat .sh` |
-| Text                   | `.txt .md .rst .log .csv`                                 |
-| Konfiguration/Data     | `.json .jsonl .yaml .yml .toml .ini .xml .env`             |
-| Webb                   | `.html .css`                                               |
-| Dokument               | `.pdf .docx .odt` (identifieras, men innehållet dumpas inte som text) |
-| Bild                   | `.png .jpg .jpeg .webp .gif .svg`                          |
-| Binär/Okänd            | Allt annat, eller filer som ser binära ut vid innehållstest |
-
-Listan över textformat som kan paketeras är inte hårdkodad till ett
-litet antal filer — arkitekturen (`core/classifier.py`) är byggd för
-att enkelt kunna utökas.
+1. Click **"Choose source folder"** and select the folder containing
+   the files you want to collect. You can add multiple source folders.
+2. Click **"Scan"**. AIDE scans the entire directory tree and displays
+   the result as a real folder structure — just like a normal file
+   manager, rather than grouping files by type.
+3. Every file AND every folder has a checkbox. Click an individual file
+   to toggle its selection, or click directly on a **folder** to
+   select/deselect *its entire subtree* with one click — useful for
+   quickly excluding an entire subfolder without clicking file by file.
+   A folder has three states: `☑` (everything selected), `☐` (nothing
+   selected), and `◪` (partially selected). You can also use
+   **"Select All"**, **"Deselect All"**, **"Select Category"**, or
+   **"Deselect Category"**.
+4. Use the filter field to quickly find files by filename, path, or
+   category.
+5. Click **"Choose export folder"** and select where the package should
+   be saved.
+6. Click **"Preview"** to review what will be exported.
+7. Click **"Build Package"**. The package automatically uses the same
+   name as your source folder (for example, `myproject.md`) instead of
+   a generic filename. If a file with the same name already exists,
+   you can choose to overwrite it, create a new version, or skip it.
+8. The log on the right shows what is happening step by step.
 
 ---
 
-## 6. Känsliga filer
+## 5. File Formats
 
-AIDE flaggar filer som matchar mönster som:
+AIDE classifies files into the following categories:
 
-```
+| Category           | Example file extensions                                                |
+| ------------------ | ---------------------------------------------------------------------- |
+| Code               | `.py .js .ts .java .cs .cpp .c .h .hpp .rs .go .php .rb .ps1 .bat .sh` |
+| Text               | `.txt .md .rst .log .csv`                                              |
+| Configuration/Data | `.json .jsonl .yaml .yml .toml .ini .xml .env`                         |
+| Web                | `.html .css`                                                           |
+| Documents          | `.pdf .docx .odt` (identified, but content is not dumped as text)      |
+| Images             | `.png .jpg .jpeg .webp .gif .svg`                                      |
+| Binary/Unknown     | Everything else, or files that appear binary during content testing    |
+
+The list of text formats that can be packaged is not hard-coded to a
+small set of file types — the architecture (`core/classifier.py`) is
+designed to be easily extended.
+
+---
+
+## 6. Sensitive Files
+
+AIDE flags files matching patterns such as:
+
+```text
 .env
 credentials.json
 secrets.json
@@ -132,117 +134,130 @@ secrets.json
 *secret*
 ```
 
-Dessa filer:
+These files:
 
-- Visas i listan med en varningsmarkering (`⚠`).
-- Är **avmarkerade som standard** — AIDE antar aldrig att en känslig
-  fil ska exporteras.
-- Kan ändå markeras manuellt av dig om du medvetet vill inkludera dem.
+* Are shown in the file list with a warning indicator (`⚠`).
+* Are **unchecked by default** — AIDE never assumes that a sensitive
+  file should be exported.
+* Can still be selected manually if you deliberately want to include
+  them.
 
-Du kan lägga till eller ta bort mönster under **Inställningar**.
-
----
-
-## 7. Exportformat
-
-AIDE kan bygga fyra typer av export till din valda exportmapp. Alla
-filnamn baseras automatiskt på din källmapps namn (t.ex. `mittprojekt`
-för en källmapp som heter `MittProjekt`), inte ett generiskt namn:
-
-- **Markdown** (`<källmapp>.md`) — hela projektet som ett läsbart,
-  strukturerat Markdown-dokument med kodblock per fil. Innehåller
-  numera automatiskt ett ASCII-filträd (se nedan) direkt efter
-  filantalet, så att AI-verktyg och läsare ser strukturen först.
-- **Ren text** (`<källmapp>.txt`) — samma struktur, sparad som `.txt`.
-- **Endast filträd** (`<källmapp>_tree.md`) — ett fristående,
-  lättviktigt dokument med ENBART en ASCII-trädstruktur av de
-  markerade filerna, inget filinnehåll. Perfekt för att snabbt
-  kommunicera ett projekts struktur, t.ex. i en chatt eller en
-  PR-beskrivning, utan att dumpa någon kod. Exempel:
-
-  ```text
-  mittprojekt/
-  ├── config/
-  │   └── settings.json
-  ├── src/
-  │   ├── core/
-  │   │   └── router.py
-  │   └── main.py
-  └── docs/
-      └── README.md
-  ```
-
-  Trädet visar bara det som faktiskt är markerat — det är en spegling
-  av vad som skulle exporteras, inte en fullständig katalogkarta.
-- **JSON-manifest** (`<källmapp>_manifest.json`) — metadata om vilka
-  filer som ingår (sökväg, storlek, kategori, känslighetsstatus etc.),
-  utan filinnehåll. Manifestet skapas alltid som komplement till
-  huvudexporten, oavsett vilket format du valt.
-
-Vid namnkonflikt i exportmappen väljer du mellan:
-
-- **Skriv över** — ersätter den befintliga filen.
-- **Skapa ny version** — sparar som t.ex. `mittprojekt (1).md`.
-- **Hoppa över** — rör inte den befintliga filen alls.
-
-AIDE skriver aldrig till, eller rör, filer utanför den valda
-exportmappen.
-
-### Ingen lokal sökvägsinformation läcker ut i exporten
-
-Paketet du bygger är tänkt att klistras in i externa verktyg (chattar,
-andra AI-modeller, delade dokument). Därför skriver AIDE **aldrig ut
-en fullständig lokal sökväg** — varken i Markdown-paketet, textpaketet
-eller JSON-manifestet. Bara källmappens *namn* (t.ex. `MittProjekt`)
-tas med, aldrig `C:\Users\ditt-namn\Desktop\...` eller motsvarande.
-Det gäller oavsett hur djupt källmappen ligger i din mappstruktur.
+You can add or remove patterns under **Settings**.
 
 ---
 
-## 8. Inställningar
+## 7. Export Formats
 
-Under **Inställningar** kan du styra:
+AIDE can build four types of exports in your selected export folder.
+All filenames are automatically based on the name of your source
+folder (for example, `myproject` for a source folder named
+`MyProject`) rather than a generic filename:
 
-- Vilka kataloger som ska ignoreras vid skanning (standard: `.git`,
-  `__pycache__`, `node_modules`, `venv`, `.venv`, `.idea`, `.vscode`,
-  `bin`, `obj`, `build`, `dist`).
-- Vilka enskilda filnamn som ska ignoreras.
-- Mönster för känsliga filer.
-- Standard-exportformat och standard-exportmapp.
-- Om binärfiler och dolda filer/kataloger ska visas i listan.
-- Om filer ska vara markerade eller avmarkerade som standard efter
-  en skanning (känsliga filer är alltid avmarkerade oavsett detta val).
+* **Markdown** (`<source-folder>.md`) — the entire project as a
+  readable, structured Markdown document with a code block for each
+  file. It now automatically includes an ASCII file tree directly
+  after the file count, so AI tools and readers see the project
+  structure first.
+* **Plain text** (`<source-folder>.txt`) — the same structure saved
+  as a `.txt` file.
+* **File tree only** (`<source-folder>_tree.md`) — a lightweight,
+  standalone document containing ONLY an ASCII tree structure of the
+  selected files, with no file contents. Useful for quickly
+  communicating a project's structure, for example in a chat or PR
+  description, without dumping any code. Example:
 
-Inställningarna sparas lokalt (i din användarprofils
-konfigurationsmapp) och laddas automatiskt nästa gång AIDE startas.
+```text
+myproject/
+├── config/
+│   └── settings.json
+├── src/
+│   ├── core/
+│   │   └── router.py
+│   └── main.py
+└── docs/
+    └── README.md
+```
+
+The tree shows only what is actually selected — it is a reflection
+of what would be exported, not a complete directory map.
+
+* **JSON manifest** (`<source-folder>_manifest.json`) — metadata about
+  the included files (path, size, category, sensitivity status, etc.),
+  without file contents. The manifest is always created as a companion
+  to the main export, regardless of which format you choose.
+
+When a filename conflict occurs in the export folder, you can choose:
+
+* **Overwrite** — replaces the existing file.
+* **Create New Version** — saves as something like
+  `myproject (1).md`.
+* **Skip** — leaves the existing file completely untouched.
+
+AIDE never writes to or modifies files outside the selected export
+folder.
+
+### No Local Path Information Leaks into Exports
+
+The package you build is intended to be pasted into external tools
+(chats, other AI models, shared documents). Therefore, AIDE **never
+writes a complete local filesystem path** into the export — neither
+in the Markdown package, the text package, nor the JSON manifest.
+
+Only the *name* of the source folder (for example, `MyProject`) is
+included. AIDE never includes paths such as
+`C:\Users\your-name\Desktop\...` or their equivalents.
+
+This applies regardless of how deeply the source folder is located
+within your directory structure.
 
 ---
 
-## 9. Projektstruktur
+## 8. Settings
+
+Under **Settings**, you can control:
+
+* Which directories should be ignored during scanning (default:
+  `.git`, `__pycache__`, `node_modules`, `venv`, `.venv`, `.idea`,
+  `.vscode`, `bin`, `obj`, `build`, `dist`).
+* Which individual filenames should be ignored.
+* Patterns for sensitive files.
+* The default export format and default export folder.
+* Whether binary files and hidden files/directories should be shown
+  in the list.
+* Whether files should be selected or deselected by default after a
+  scan (sensitive files are always deselected regardless of this
+  setting).
+
+Settings are stored locally (in your user profile's configuration
+directory) and automatically loaded the next time AIDE starts.
+
+---
+
+## 9. Project Structure
 
 ```text
 AIDE/
-├── main.py                    # startpunkt
+├── main.py                    # entry point
 ├── requirements.txt
 ├── README.md
 ├── docs/
-│   └── PLUGIN_GUIDE.md          # fristående guide för att bygga plugins
+│   └── PLUGIN_GUIDE.md        # standalone guide for building plugins
 ├── core/
-│   ├── scanner.py              # rekursiv katalogskanning
-│   ├── classifier.py           # filklassificering + känslighetsdetektion
-│   ├── package_builder.py      # bygger paketets textinnehåll
-│   ├── manifest.py             # bygger JSON-manifestet
-│   ├── security.py             # konflikthantering, säker exportväg
-│   ├── settings.py             # läsning/sparning av inställningar
-│   ├── plugin_base.py          # publikt, stabilt plugin-kontrakt (AIDEPlugin)
-│   ├── plugin_loader.py        # dynamisk pluginupptäckt från plugins/
-│   └── tree_renderer.py        # ASCII-filträdsgenerering
+│   ├── scanner.py             # recursive directory scanning
+│   ├── classifier.py          # file classification + sensitive file detection
+│   ├── package_builder.py     # builds package text content
+│   ├── manifest.py            # builds the JSON manifest
+│   ├── security.py            # conflict handling, safe export path
+│   ├── settings.py            # settings loading/saving
+│   ├── plugin_base.py         # public, stable plugin contract (AIDEPlugin)
+│   ├── plugin_loader.py       # dynamic plugin discovery from plugins/
+│   └── tree_renderer.py       # ASCII file tree generation
 ├── ui/
-│   ├── theme.py                 # delad färgpalett/typografi
-│   ├── main_window.py          # huvudfönster, knappar, trådhantering
-│   ├── file_tree.py            # hierarkiskt mappträd med checkboxar och filter
-│   ├── preview.py              # förhandsgranskningsfönster
-│   └── settings_window.py      # inställningsfönster
+│   ├── theme.py               # shared color palette/typography
+│   ├── main_window.py         # main window, buttons, threading
+│   ├── file_tree.py           # hierarchical folder tree with checkboxes and filter
+│   ├── preview.py             # preview window
+│   └── settings_window.py     # settings window
 ├── exporters/
 │   ├── markdown_exporter.py
 │   ├── text_exporter.py
@@ -250,7 +265,7 @@ AIDE/
 │   └── json_exporter.py
 ├── plugins/
 │   └── example_plugin/
-│       └── main_plugin.py      # körbar referensimplementation
+│       └── main_plugin.py     # runnable reference implementation
 └── tests/
     ├── test_scanner.py
     ├── test_classifier.py
@@ -259,89 +274,91 @@ AIDE/
     └── test_tree_renderer.py
 ```
 
-GUI, filanalys och export är medvetet separerade: `ui/`-modulerna
-anropar bara funktioner i `core/` och `exporters/`, aldrig tvärtom.
+GUI, file analysis, and export are deliberately separated:
+`ui/` modules call functions in `core/` and `exporters/`, never the
+other way around.
 
 ---
 
-## 10. Testning
+## 10. Testing
 
-Kör hela testsviten med:
+Run the full test suite with:
 
 ```bash
 pip install -r requirements.txt
 pytest tests/ -v
 ```
 
-Testerna täcker bland annat:
+The tests cover, among other things:
 
-- rekursiv katalogskanning (inklusive ignorerade kataloger)
-- filklassificering (kod, text, bild, binär, okänd)
-- UTF-8-filnamn och internationella tecken
-- tomma kataloger
-- oläsbara filer (felhantering utan krasch)
-- upptäckt av känsliga filer, även dolda som `.env`
-- avbruten skanning
-- Markdown-, text- och JSON-manifest-export
-- konflikthantering vid befintlig exportfil (skriv över / ny version /
-  hoppa över)
-- att export aldrig kan hamna utanför vald exportmapp
-
----
-
-## 11. Begränsningar
-
-- Binärfiler (bilder, exe, databaser, dokumentformat som `.pdf`/`.docx`)
-  inkluderas i nuläget endast som metadata/platshållare i paketet, inte
-  som faktiskt filinnehåll.
-- Automatisk textextraktion ur `.pdf`/`.docx` (t.ex. för att inkludera
-  brödtext i paketet) är inte implementerad i denna version.
-- Pluginsystemet (se `docs/PLUGIN_GUIDE.md`) laddar just nu alla
-  plugins i `plugins/`-katalogen automatiskt vid uppstart — det finns
-  ännu ingen inställning för att välja bort enskilda plugins.
-- GUI:t är byggt med CustomTkinter för att vara helt fristående utan
-  externa GUI-beroenden utöver det ena paketet; det är funktionellt
-  men medvetet enkelt i sin visuella utformning.
+* recursive directory scanning (including ignored directories)
+* file classification (code, text, image, binary, unknown)
+* UTF-8 filenames and international characters
+* empty directories
+* unreadable files (error handling without crashing)
+* sensitive file detection, including hidden files such as `.env`
+* interrupted scanning
+* Markdown, text, and JSON manifest export
+* conflict handling for existing export files (overwrite / new version /
+  skip)
+* ensuring exports can never end up outside the selected export folder
 
 ---
 
-## 12. Framtida utveckling
+## 11. Limitations
 
-Pluginsystemet finns nu (se `docs/PLUGIN_GUIDE.md`), men möjliga
-nästa steg utöver det:
-
-- Riktig innehållsextraktion för dokumentformat (PDF/DOCX) som en
-  valbar exportvariant.
-- Möjlighet att spara/ladda "profiler" (kombinationer av källor,
-  filter och urval) för återkommande projekt.
-- Drag-and-drop av mappar direkt i huvudfönstret.
-- Alternativ export som inkluderar binärfiler som faktiska bifogade
-  filer (kopierade, inte inline-text) i exportmappen.
-- En inställningspanel i GUI:t som listar installerade plugins och
-  låter användaren aktivera/inaktivera dem individuellt (idag laddas
-  alla plugins i `plugins/`-katalogen automatiskt).
-- Zip-arkiv som virtuell källmapp (packa upp och skanna in innehållet
-  utan manuellt extraheringssteg) samt riktig textextraktion ur PDF —
-  medvetet nedprioriterat för närvarande.
+* Binary files (images, executables, databases, document formats such
+  as `.pdf`/`.docx`) are currently included only as metadata/placeholders
+  in the package, not as actual file contents.
+* Automatic text extraction from `.pdf`/`.docx` (for example, including
+  document body text in the package) is not implemented in this version.
+* The plugin system (see `docs/PLUGIN_GUIDE.md`) currently loads all
+  plugins in the `plugins/` directory automatically at startup — there
+  is not yet a setting for enabling or disabling individual plugins.
+* The GUI is built with CustomTkinter to remain fully standalone without
+  external GUI dependencies beyond the one package; it is functional
+  but deliberately simple in its visual design.
 
 ---
 
-## 13. Ändringslogg (utvalt)
+## 12. Future Development
 
-- **Säkerhetsfix:** tidigare versioner skrev källmappens *fullständiga
-  absoluta sökväg* rakt in i exportfilerna (Markdown, text och
-  JSON-manifest) under rubriken "SOURCE ROOTS". Det innebar att
-  användarnamn och lokal mappstruktur kunde läcka ut i paket tänkta
-  att delas eller klistras in i externa AI-verktyg. Från och med denna
-  version skrivs bara källmappens *namn* ut, aldrig dess fulla sökväg
-  — se avsnitt 7.
-- Exportfilnamn baseras nu på källmappens namn (`<källmapp>.md` etc.)
-  istället för ett generiskt `project_package.md`.
-- Filträdet är omgjort från kategorigruppering till en riktig
-  hierarkisk mappstruktur, med klickbara checkboxar på mappnivå för
-  att exkludera hela delträd i ett klick (se avsnitt 4).
-- Nytt: ASCII-filträd, både inbakat automatiskt i Markdown/text-
-  paketet och som ett eget fristående exportformat ("Endast filträd").
-  Litet tillägg jag (Claude) lade till utöver det uttryckligen
-  begärda: en genererad-tidsstämpel längst ner i trädexporten, så den
-  är lätt att se är färsk vid en snabb blick.
+The plugin system is now available (see `docs/PLUGIN_GUIDE.md`), but
+possible next steps include:
+
+* Full content extraction for document formats (PDF/DOCX) as an
+  optional export variant.
+* The ability to save/load "profiles" (combinations of sources, filters,
+  and selections) for recurring projects.
+* Drag-and-drop of folders directly into the main window.
+* An alternative export mode that includes binary files as actual
+  attached files (copied, not inline text) in the export folder.
+* A settings panel in the GUI that lists installed plugins and allows
+  users to enable/disable them individually (currently all plugins in
+  the `plugins/` directory are loaded automatically).
+* ZIP archives as virtual source folders (extract and scan their
+  contents without a manual extraction step), as well as actual text
+  extraction from PDFs — deliberately deprioritized for now.
+
+---
+
+## 13. Selected Changelog
+
+* **Security fix:** previous versions wrote the source folder's
+  *complete absolute path* directly into export files (Markdown, text,
+  and JSON manifest) under the heading "SOURCE ROOTS". This meant that
+  usernames and local folder structures could leak into packages
+  intended to be shared or pasted into external AI tools. From this
+  version onward, only the source folder's *name* is written — never
+  its full path. See section 7.
+* Export filenames are now based on the source folder's name
+  (`<source-folder>.md`, etc.) instead of the generic
+  `project_package.md`.
+* The file tree has been changed from category grouping to a true
+  hierarchical folder structure, with clickable folder-level checkboxes
+  for excluding entire subtrees with a single click (see section 4).
+* New: ASCII file trees, both embedded automatically in Markdown/text
+  packages and available as a standalone export format ("File tree only").
+  A small addition I (Claude) added beyond the explicitly requested
+  functionality: a generated timestamp at the bottom of tree exports,
+  making it easy to tell at a glance that the tree is current.
