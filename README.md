@@ -1,4 +1,4 @@
-# AIDE — Archive, Inspect, Diff & Export
+# AIDE — Archive · Identify · Determine · Export
 
 AIDE is a standalone local tool built around a simple idea:
 
@@ -20,7 +20,7 @@ Files are added, folders change, configuration accumulates, old material remains
 
 AIDE is an attempt to make that question easier to answer.
 
-The concept is simple:
+The concept can be expressed as:
 
 **See it → Choose it → Inspect it → Protect it → Export it**
 
@@ -72,7 +72,7 @@ The important part is that the export is not the starting point.
 
 AIDE therefore does not try to decide what a project means.
 
-**AIDE provides the tools to inspect and represent it. The person using it decides what that representation should contain.**
+**AIDE provides the tools to identify, determine, and represent it. The person using it decides what that representation should contain.**
 
 ---
 
@@ -94,9 +94,8 @@ At its core, AIDE can:
 
 * scan project directories and their contents
 * present project structure in a human-readable way
-* classify and identify different types of files
-* identify potentially sensitive material
-* let the user control what is included
+* identify different types of files and potentially sensitive material
+* let the user determine what is included
 * preview the selected material
 * create portable project representations
 * create structured file trees and metadata
@@ -186,20 +185,5 @@ The full MIT License is reproduced below:
 Copyright (c) 2026 TheHuManInTheMiddle
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+of this software and associated documentation fil
 ```
