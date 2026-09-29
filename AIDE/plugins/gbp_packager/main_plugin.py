@@ -46,6 +46,7 @@ miljö som kör AIDE.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -116,6 +117,31 @@ def _filter_internal_modules(requirements: list[str], log_callback) -> list[str]
     return kept
 
 
+def _get_pip_python() -> list[str]:
+    """
+    Returnerar kommandot som ska användas för att köra pip.
+
+    Vid vanlig Python-körning används samma Python som kör AIDE.
+    När AIDE är paketerad med PyInstaller pekar sys.executable på
+    AIDE.exe, så då används en vanlig Python-installation istället.
+    """
+    if not getattr(sys, "frozen", False):
+        return [sys.executable]
+
+    python_path = shutil.which("python")
+    if python_path:
+        return [python_path]
+
+    py_launcher = shutil.which("py")
+    if py_launcher:
+        return [py_launcher, "-3"]
+
+    raise RuntimeError(
+        "Ingen vanlig Python-installation hittades för pip-installation. "
+        "Installera Python och kontrollera att python/py finns i PATH."
+    )
+
+
 def _install_dependencies(requirements: list[str], target_dir: Path, log_callback) -> None:
     """Höjer RuntimeError vid pip-fel — fångas av anroparen."""
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -128,10 +154,19 @@ def _install_dependencies(requirements: list[str], target_dir: Path, log_callbac
     req_file.write_text("\n".join(requirements) + "\n", encoding="utf-8")
 
     log_callback(f"Installerar {len(requirements)} beroende(n) isolerat ...")
+
+    pip_python = _get_pip_python()
+
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "-r", str(req_file), "--target", str(target_dir)],
-        capture_output=True, text=True,
+        pip_python + [
+            "-m", "pip", "install",
+            "-r", str(req_file),
+            "--target", str(target_dir),
+        ],
+        capture_output=True,
+        text=True,
     )
+
     if result.returncode != 0:
         raise RuntimeError(f"pip install misslyckades: {result.stderr.strip()[-500:]}")
 
@@ -188,7 +223,7 @@ def export_gbp(
         log_callback(f"[1/4] Upptäcker beroenden med pipreqs i {source_dir} ...")
         raw_requirements = _run_pipreqs(source_dir, log_callback)
         if raw_requirements is None:
-            return None  # pipreqs saknas, redan loggat
+            return None
 
         log_callback("[2/4] Filtrerar bort interna moduler ...")
         requirements = _filter_internal_modules(raw_requirements, log_callback)
@@ -203,9 +238,6 @@ def export_gbp(
 
         log_callback("[4/4] Bygger .gbp-arkiv ...")
 
-        # Extra filer: andra markerade filer som ligger direkt i
-        # källmappens rot (inte i undermappar — de täcks redan av
-        # dependencies/ eller hör inte hemma i paketet).
         extra_files = [
             f for f in included_files
             if f is not entry_file and "/" not in f.relative_path
